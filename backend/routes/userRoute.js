@@ -7,19 +7,36 @@ const { JWT_SECRET } = require("../config");
 
 const router = express.Router();
 
-router.post("/signin",(req,res)=>{
+router.post("/signin",async (req,res)=>{
     const username =req.body.username
     const password =req.body.password
+    
 
-    var token = jwt.sign({ foo: 'bar' }, 'shhhhh');
+    const userExist = await User.findOne({username});
 
-    res.status(200).json({  
-	token: "jwt"
-    })
+    if(userExist){
 
-    res.status(411).json({  
-        message: "Error while logging in"
-    })
+
+        if(userExist.password===password){
+            const newUser = userExist._id ;
+            var token = jwt.sign({ newUser }, JWT_SECRET);
+            res.status(200).json({
+                message: "successfully login",
+                token
+            })
+        }else{
+            res.status(411).json({
+                message: "Password is incorrect"
+            })
+        }
+        
+
+    }else{
+        res.status(411).json({
+            message: "User does not exist"
+        })
+    }
+
 })
 
 
