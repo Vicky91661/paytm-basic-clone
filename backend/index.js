@@ -4,11 +4,13 @@ var cors = require('cors')
 var bodyParser = require('body-parser')
 const PORT = 3000;
 
-bodyParser.json()
+
 
 const mainRouter = require("./routes/index")
 
 app.use(cors())
+app.use(express.json());
+
 app.use("/api/v1",mainRouter)
 
 
