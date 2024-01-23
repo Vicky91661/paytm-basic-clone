@@ -4,6 +4,8 @@ const {User} = require("../db")
 const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = require("../config");
 
+const userAuth = require("../middlewares/userMiddleware/userAuth")
+
 const {z} = require("zod")
 
 const bcrypt = require('bcrypt');
@@ -35,8 +37,8 @@ router.post("/signin",async (req,res)=>{
         if(userExist){
             const result = await bcrypt.compare(password,userExist.password)
             if(result){
-                const newUser = userExist._id ;
-                var token = jwt.sign({ newUser }, JWT_SECRET);
+                const userId = userExist._id ;
+                var token = jwt.sign({ userId }, JWT_SECRET);
                 res.status(200).json({
                     message: "successfully login",
                     token
@@ -89,8 +91,8 @@ router.post("/signup",async (req,res)=>{
                 lastName,
             })
             if(user){
-                const newUser = user._id ;
-                var token = jwt.sign({ newUser }, JWT_SECRET);
+                const userId = user._id ;
+                var token = jwt.sign({ userId }, JWT_SECRET);
                 res.status(200).json({
                     message: "User created successfully",
                     token
@@ -114,7 +116,7 @@ router.post("/signup",async (req,res)=>{
         
     
 })
-router.post("/changePassword",(req,res)=>{
+router.post("/changePassword",userAuth,(req,res)=>{
     res.status(200).json({
         msg:"changePassword is okey"
     })
