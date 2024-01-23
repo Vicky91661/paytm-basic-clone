@@ -116,10 +116,104 @@ router.post("/signup",async (req,res)=>{
         
     
 })
-router.post("/changePassword",userAuth,(req,res)=>{
-    res.status(200).json({
-        msg:"changePassword is okey"
-    })
+
+const updatePassword = z.object({
+	password:z.string().min(5,{message:"password must be more than 5 length"}),
 })
 
+router.put("/changePassword",userAuth,async (req,res)=>{
+    
+    try {
+        const newPassword=req.body.password
+        updatePassword.parse({password:newPassword})
+    } catch (error) {
+        return res.status(411).json({
+            message: "Invalid input",
+            errors: error.errors.map(err => err.message),
+        });
+    }
+   
+    const password =await bcrypt.hash(req.body.password,saltRounds);
+    
+    const authHeader = req.headers.authorization;
+    const token = authHeader.split(' ')[1];
+    const decode = jwt.verify(token,JWT_SECRET)
+    const newUser = decode.newUser;
+
+    try {
+        await User.updateOne({_id:newUser},password)
+        return res.status(200).json({
+            msg:"changePassword is okey"
+        })
+    } catch (error) {
+        return res.status(411).json({
+            msg:"not updated"
+        })
+    }
+    
+})
+
+
+const updateDetails = z.object({
+    firstName:z.string().max(50, { message: "firstName must be 50 or less characters long" }),
+    lastName:z.string().max(50, { message: "lastName must be 50 or less characters long" })
+})
+router.put("/updateDetail",userAuth,async (req,res)=>{
+   
+    try {
+        const firstName = req.body.firstName;
+        const lastName = req.body.lastName;
+        updateDetails.parse({firstName,lastName})
+    } catch (error) {
+        return res.status(411).json({
+            message: "Invalid input",
+            errors: error.errors.map(err => err.message),
+        });
+    }
+
+    const firstName = req.body.firstName;
+    const lastName = req.body.lastName;
+
+    const authHeader = req.headers.authorization;
+    const token = authHeader.split(' ')[1];
+    const decode = jwt.verify(token,JWT_SECRET)
+    const newUser = decode.newUser;
+    
+    try {
+        if(firstName )
+        await User.updateOne({_id:newUser},{firstName,lastName})
+        return res.status(200).json({
+            msg:"Details changed successfully"
+        })
+    } catch (error) {
+        return res.status(411).json({
+            msg:"Details not updated"
+        })
+    }
+    
+})
+
+
+
+// /api/v1/user/bulk => to send all the user after filtering
+// Query Parameter: ?filter=harkirat
+
+router.get("/bulk",userAuth,async (req,res)=>{
+    const filterValue = req.query.filter||"";
+    const regex = new RegExp(filterValue, 'i');
+
+    const allUsers = await User.find({$or: [
+        {"firstName": regex},
+        {"lastName": regex}]
+    });
+    
+    return res.status(200).json({
+        users : allUsers.map((user)=>({
+            username: user.username,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            _id: user._id
+        }))
+    })
+})
 module.exports = router;
