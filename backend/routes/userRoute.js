@@ -1,6 +1,6 @@
 const express = require("express");
-const {User} = require("../db")
-const {Account } = require("../db/index")
+const {User,Account} = require("../db")
+
 
 const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = require("../config");
@@ -94,16 +94,17 @@ router.post("/signup",async (req,res)=>{
             if(user){
                 const userId = user._id ;
                 var token = jwt.sign({ userId }, JWT_SECRET);
-                res.status(200).json({
-                    message: "User created successfully",
-                    token
-                })
                 const amount =Math.floor(Math.random()*1000)+1; 
-                Account.create({
+                const account = await Account.create({
                     userId:user._id,
                     balance:amount
                 })
-
+                res.status(200).json({
+                    message: "User created successfully",
+                    token,
+                    accountId : account._id
+                })
+               
             }else{
                 res.status(411).json({
                     message: "not inserted into database"
