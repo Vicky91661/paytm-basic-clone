@@ -206,7 +206,7 @@ router.put("/updateDetail",userAuth,async (req,res)=>{
 // /api/v1/user/bulk => to send all the user after filtering
 // Query Parameter: ?filter=harkirat
 
-router.get("/bulk",userAuth,async (req,res)=>{
+router.get("/bulk",async (req,res)=>{
     const filterValue = req.query.filter||"";
     const regex = new RegExp(filterValue, 'i');
 
