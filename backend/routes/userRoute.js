@@ -39,27 +39,29 @@ router.post("/signin",async (req,res)=>{
             const result = await bcrypt.compare(password,userExist.password)
             if(result){
                 const userId = userExist._id ;
+
                 var token = jwt.sign({ userId }, JWT_SECRET);
                 res.status(200).json({
                     message: "successfully login",
+                    firstName:userExist.firstName,
+                    lastName:userExist.lastName,
                     token
                 })
             }else{
                 res.status(411).json({
-                    message: "Password is incorrect"
+                    message: ["Password is incorrect"]
                 })
             }
             
 
         }else{
             res.status(411).json({
-                message: "User does not exist"
+                message: ["User does not exist"]
             })
         }
     } catch (error) {
         res.status(411).json({
-            message: "Invalid input",
-            errors: error.errors.map(err => err.message),
+            message: error.errors.map(err => err.message)
         });
     }
 
@@ -114,8 +116,7 @@ router.post("/signup",async (req,res)=>{
         }
     } catch (error) {
         res.status(411).json({
-            message: "Invalid input",
-            errors: error.errors.map(err => err.message),
+            message: error.errors.map(err => err.message),
         });
     }
 
@@ -206,7 +207,7 @@ router.put("/updateDetail",userAuth,async (req,res)=>{
 // /api/v1/user/bulk => to send all the user after filtering
 // Query Parameter: ?filter=harkirat
 
-router.get("/bulk",async (req,res)=>{
+router.get("/bulk",userAuth,async (req,res)=>{
     const filterValue = req.query.filter||"";
     const regex = new RegExp(filterValue, 'i');
 

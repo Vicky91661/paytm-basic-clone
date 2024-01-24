@@ -12,7 +12,11 @@ function Dashboard() {
     const [allUsers,setAllUsers] = useState()
 
     useEffect(()=>{
-        axios.get("http://localhost:3000/api/v1/user/bulk")
+        const token=localStorage.getItem('authorization');
+        const headers = {
+            authorization: `Bearer ${token}`, // Example of an authorization header
+        };
+        axios.get("http://localhost:3000/api/v1/user/bulk",{headers})
         .then((data)=>{
             console.log(data)
             console.log(data.data.users);
@@ -23,12 +27,12 @@ function Dashboard() {
     },[])
 
   return (
-    <div>
+    <div >
         <Header firstName={"Vicky"} lastName={"Shah"}/>
-        <div>
+        <div className=' p-4'>
             <div>
-                <h1>Your Balance is :{user.balance} </h1>
-                <h1>Users</h1>
+                <h1 className=' text-blue-900 font-poppins font-medium text-lg pt-2 pb-2 ml-2'>Your Balance is :{user.balance} </h1>
+                <h1 className='font-poppins font-medium text-lg pb-2 ml-2'>Users</h1>
                 
                 <form>   
                     <label htmlFor="default-search" className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>

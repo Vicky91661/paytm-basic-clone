@@ -7,10 +7,10 @@ function UserCard({userId,firstName,lastName}) {
         console.log(user)
     }
   return (
-    <div className=' rounded-md shadow-2xl flex justify-between pl-5 pr-5 mt-3'>
+    <div className=' rounded-md shadow-sm flex justify-between ml-5 mr-5 mt-3 p-2'>
         <div>
             <div></div>
-            <div className=' text-lg'>{firstName} {lastName}</div>
+            <div className=' font-poppins text-lg'>{firstName} {lastName}</div>
         </div>
         <div>
             <button className='bg-slate-800 text-white text-sm p-2 rounded-md' onClick={sendMoney}>Send Money</button>
