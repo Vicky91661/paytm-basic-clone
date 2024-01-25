@@ -19,13 +19,7 @@ const userSignin =z.object({
     .max(30,{message:"username must be 30 or less characters long"}),
     password:z.string().min(5,{message:"password must be more than 5 length"})
 })
-const userSignup =z.object({
-    username:z.string().email().min(3, { message: "username must be 3 or more characters long" })
-    .max(30,{message:"username must be 30 or less characters long"}),
-    password:z.string().min(5,{message:"password must be more than 5 length"}),
-    firstName:z.string().max(50, { message: "firstName must be 50 or less characters long" }),
-    lastName:z.string().max(50, { message: "lastName must be 50 or less characters long" })
-})
+
 
 router.post("/signin",async (req,res)=>{
     const username =req.body.username
@@ -34,19 +28,35 @@ router.post("/signin",async (req,res)=>{
     try {
         userSignin.parse({username,password})
         const userExist = await User.findOne({username});
+       
 
         if(userExist){
             const result = await bcrypt.compare(password,userExist.password)
             if(result){
                 const userId = userExist._id ;
-
-                var token = jwt.sign({ userId }, JWT_SECRET);
-                res.status(200).json({
-                    message: "successfully login",
-                    firstName:userExist.firstName,
-                    lastName:userExist.lastName,
-                    token
-                })
+                const account = await Account.findOne({userId})
+                if(account){
+                    var token = jwt.sign({ userId }, JWT_SECRET);
+                    res.status(200).json({
+                        message: "successfully login",
+                        firstName:userExist.firstName,
+                        lastName:userExist.lastName,
+                        userId:userExist._id,
+                        balance:account.balance,
+                        token
+                    })
+                }else{
+                    var token = jwt.sign({ userId }, JWT_SECRET);
+                    res.status(200).json({
+                        message: "successfully login",
+                        firstName:userExist.firstName,
+                        lastName:userExist.lastName,
+                        userId:userExist._id,
+                        balance:"Account is not there",
+                        token
+                    })
+                }
+                
             }else{
                 res.status(411).json({
                     message: ["Password is incorrect"]
@@ -60,6 +70,7 @@ router.post("/signin",async (req,res)=>{
             })
         }
     } catch (error) {
+        console.log(error)
         res.status(411).json({
             message: error.errors.map(err => err.message)
         });
@@ -67,22 +78,29 @@ router.post("/signin",async (req,res)=>{
 
 })
 
-
+const userSignup =z.object({
+    username:z.string().email().min(3, { message: "username must be 3 or more characters long" })
+    .max(30,{message:"username must be 30 or less characters long"}),
+    password:z.string().min(5,{message:"password must be more than 5 length"}),
+    firstName:z.string().max(50, { message: "firstName must be 50 or less characters long" }),
+    lastName:z.string().max(50, { message: "lastName must be 50 or less characters long" })
+})
 router.post("/signup",async (req,res)=>{
-    
+   
+
     const username =req.body.username
     const password =req.body.password
     const firstName =req.body.firstName
     const lastName =req.body.lastName
-
     try {
         userSignup.parse({ username, password, firstName, lastName });
         
         const userExist = await User.findOne({username});
 
         if(userExist){
-            res.status(411).json({
-                message: "Email already taken"
+            
+            return res.status(411).json({
+                message: ["Email already taken"]
             })
 
         }else{
@@ -94,6 +112,7 @@ router.post("/signup",async (req,res)=>{
                 lastName,
             })
             if(user){
+               
                 const userId = user._id ;
                 var token = jwt.sign({ userId }, JWT_SECRET);
                 const amount =Math.floor(Math.random()*1000)+1; 
@@ -101,21 +120,31 @@ router.post("/signup",async (req,res)=>{
                     userId:user._id,
                     balance:amount
                 })
-                res.status(200).json({
-                    message: "User created successfully",
-                    token,
-                    accountId : account._id
-                })
-               
+                if(account){
+                    return res.status(200).json({
+                        message: "User created successfully",
+                        userId:userId,
+                        balance:account.balance,
+                        accountId : account._id,
+                        token   
+                    })
+                }else{
+                    
+                    return res.status(411).json({
+                        message: ["not inserted into database"]
+                    }) 
+                }  
             }else{
-                res.status(411).json({
-                    message: "not inserted into database"
+               
+                return res.status(411).json({
+                    message: ["not inserted into database"]
                 })
             }
         
         }
     } catch (error) {
-        res.status(411).json({
+        
+        return res.status(411).json({
             message: error.errors.map(err => err.message),
         });
     }

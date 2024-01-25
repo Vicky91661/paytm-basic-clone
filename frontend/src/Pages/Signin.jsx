@@ -1,13 +1,15 @@
 import React, { useState } from 'react'
 import { Link, useNavigate  } from 'react-router-dom'
 import axios from 'axios';
-
+import { useSetRecoilState } from 'recoil';
+import UserAtom from '../store/UserAtom';
 function Signin() {
-
+    
     const [loginData,setLoginData]=useState({
         username:"",
         password:""
     })
+    const setUserData = useSetRecoilState(UserAtom)
 
     const [error,setError]=useState("")
     const navigate = useNavigate ();
@@ -18,10 +20,14 @@ function Signin() {
         .then((data)=>{
             const authorization =data.data.token;
             localStorage.setItem('authorization', authorization);
-            console.log(data.data.message)
-            console.log(data.data.firstName)
-            console.log(data.data.lastName)
-            console.log(data.data.token)
+            
+            setUserData(
+                ()=>({firstName:data.data.firstName,
+                lastName:data.data.lastName,
+                userId:data.data.userId,
+                balance:data.data.balance
+                })
+            )
             navigate("/dashboard")
         }).catch((error)=>{
             console.log("error is =>",error)

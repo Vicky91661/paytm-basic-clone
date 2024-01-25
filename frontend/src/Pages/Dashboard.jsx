@@ -1,34 +1,47 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState,lazy,Suspense } from 'react'
 import Header from '../components/Header'
 import axios from 'axios';
-import UserCard from '../components/UserCard';
+
+import { Link, useNavigate,useSearchParams  } from 'react-router-dom'
+
+const UserCard =lazy(()=>import('../components/UserCard'));
+
+import Loading from '../components/loading';
+
+import { useRecoilValue } from 'recoil';
+import UserAtom from '../store/UserAtom';
+
 function Dashboard() {
-    const [user,setUser] = useState({
-        username:"kumar.vickysah72@gmail.com",
-        firstName:"Vicky",
-        lastName : "Shah",
-        balance:7000
-    })
+    const navigate=useNavigate();
+    // const params = useSearchParams();
+    // const filter = params.get('filter');
+    // console.log(filter)
+    
+    const user = useRecoilValue(UserAtom)
     const [allUsers,setAllUsers] = useState()
+
+    const [search,setSearch]=useState("");
 
     useEffect(()=>{
         const token=localStorage.getItem('authorization');
+        console.log("token is =>",token)
         const headers = {
             authorization: `Bearer ${token}`, // Example of an authorization header
         };
-        axios.get("http://localhost:3000/api/v1/user/bulk",{headers})
+        // `/api/v1/user/bulk?filter=${filterValue}`
+        axios.get(`http://localhost:3000/api/v1/user/bulk?filter=${search}`,{headers})
         .then((data)=>{
-            console.log(data)
-            console.log(data.data.users);
             setAllUsers(data.data.users)
         }).catch((error)=>{
             console.log(error)
+            navigate("/error")
         })
-    },[])
+    },[search])
+
 
   return (
     <div >
-        <Header firstName={"Vicky"} lastName={"Shah"}/>
+        <Header firstName={user.firstName} lastName={user.lastName}/>
         <div className=' p-4'>
             <div>
                 <h1 className=' text-blue-900 font-poppins font-medium text-lg pt-2 pb-2 ml-2'>Your Balance is :{user.balance} </h1>
@@ -45,21 +58,22 @@ function Dashboard() {
                         <input type="search" id="default-search" className="block w-full p-4 ps-10 text-sm text-gray-900 border
                         border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700
                         dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500
-                        dark:focus:border-blue-500" placeholder="Search Users" required/>
+                        dark:focus:border-blue-500" placeholder="Search Users" required value={search} onChange={(e)=>setSearch(e.target.value)}/>
 
-                        <button type="submit" className="text-white absolute end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none
-                        focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700
-                        dark:focus:ring-blue-800">Search</button>
+                      
                     </div>
                 </form>
 
             </div>
         </div>
-        {allUsers&&allUsers?.map((user)=>{
-            return <div key={user._id}>
-                <UserCard userId={user._id} firstName={user.firstName} lastName={user.lastName}/>
-            </div>
-        })}
+        <Suspense fallback={<Loading />}>
+            {allUsers&&allUsers?.map((u)=>{
+                return(u.firstName!==user.firstName&&u.lastName!==user.lastName?<div key={user._id}>
+                        <UserCard userId={user._id} firstName={u.firstName} lastName={u.lastName}/>
+                    </div>:null)
+                
+            })}
+        </Suspense>
     </div>
   )
 }
