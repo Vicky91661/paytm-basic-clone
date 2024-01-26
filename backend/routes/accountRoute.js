@@ -36,6 +36,8 @@ router.post("/transferMoney",userAuth,async (req,res)=>{
 
     const to = req.body.to;
     const amount = req.body.amount ;
+    console.log("receiver is ",to);
+    console.log("amount to send is",amount)
 
     try {
 
@@ -44,28 +46,32 @@ router.post("/transferMoney",userAuth,async (req,res)=>{
 
         const headerToken = req.headers.authorization;
         const token=headerToken.split(' ')[1]
+        
         const decode = jwt.verify(token,JWT_SECRET)
         const userId = decode.userId;
+        console.log("sender id is =>",userId)
         const SenderAccount = await Account.findOne({userId}).session(session)
+        console.log("sender Account is =>",SenderAccount)
 
         if(!SenderAccount){
             await session.abortTransaction();
             return  res.status(400).json({
-                msg:"Invalid User's Account"
+                message:"Invalid User's Account"
             })
         }
         if(SenderAccount.balance<amount){
             await session.abortTransaction();
             return res.status(400).json({
-                msg:"Not sufficient money to send"
+                message:"Not sufficient money to send"
             })
         }
 
         const ReceiverAccount = await Account.findOne({userId:to}).session(session);
+        console.log("Receiver Acccount is => ",ReceiverAccount)
         if(!ReceiverAccount){
             await session.abortTransaction();
             return  res.status(400).json({
-                msg:"reveiver has not created an balance account"
+                message:"reveiver has not created an balance account"
             })
         }
 
@@ -79,7 +85,7 @@ router.post("/transferMoney",userAuth,async (req,res)=>{
         await session.commitTransaction();
 
         return res.status(200).json({
-            msg:"transction done"
+            message:"transction done"
         })
 
     } catch (error) {

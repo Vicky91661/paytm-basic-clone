@@ -235,6 +235,31 @@ router.put("/updateDetail",userAuth,async (req,res)=>{
 
 // /api/v1/user/bulk => to send all the user after filtering
 // Query Parameter: ?filter=harkirat
+router.get("/userDetails",userAuth,async(req,res)=>{
+
+    const authHeader = req.headers.authorization;
+    const token = authHeader.split(' ')[1];
+    const decode = jwt.verify(token,JWT_SECRET)
+    const userId = decode.userId;
+
+    try{
+        const userDetails = await User.findOne({_id:userId});
+        const accountDetails = await Account.findOne({userId})
+        
+        const data = {
+            firstName:userDetails.firstName,
+            lastName:userDetails.lastName,
+            balance:accountDetails.balance,
+            userId:userDetails._id
+        }
+        return res.status(200).json(data)
+    }catch(error){
+        console.log(error);
+        return res.status(400).json({
+            message:"user is not there"
+        })
+    }
+})
 
 router.get("/bulk",userAuth,async (req,res)=>{
     const filterValue = req.query.filter||"";

@@ -19,7 +19,7 @@ function Error() {
             <div>
                 <div className='flex flex-col items-center'>
                     <h1 className=' text-center text-xl font-poppins font-bold pt-5 mb-2'>Already have an account?</h1>
-                    <button className='bg-gray-900 text-white py-1 px-3  rounded-md w-1/2'  onClick={()=>navigate("/signin")}>Sign In</button>
+                    <button className='bg-gray-900 text-white py-1 px-3  rounded-md w-1/2'  onClick={()=>navigate("/")}>Sign In</button>
                 </div>
                 
                 
