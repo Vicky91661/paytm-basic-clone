@@ -32,13 +32,12 @@ function Dashboard() {
     const [userBalance, setUserBalance]= useState()
 
     const token=localStorage.getItem('authorization');
-    console.log("token is =>",token)
+    
     const headers = {
         authorization: `Bearer ${token}`, // Example of an authorization header
     };
 
     useEffect(()=>{
-       if(!user.firstName){
 
             axios.get("https://paytm-basic-clone-backend.vercel.app/api/v1/user/userDetails",{headers})
             .then((Response)=>{
@@ -52,7 +51,7 @@ function Dashboard() {
                 }))
                 setUserBalance(data.balance)
 
-                axios.get(`https://paytm-basic-clone-backend.vercel.app/api/v1/user/bulk`,{headers})
+                axios.get(`https://paytm-basic-clone-backend.vercel.app/api/v1/user/bulk?filter=${search}`,{headers})
                 .then((data)=>{
                     setAllUsers(data.data.users)
                 }).catch((error)=>{
@@ -63,18 +62,7 @@ function Dashboard() {
             }).catch((error)=>{
                
                 navigate("/error")
-            })
-
-       }else{
-
-            axios.get(`https://paytm-basic-clone-backend.vercel.app/api/v1/user/bulk?filter=${search}`,{headers})
-            .then((data)=>{
-                setAllUsers(data.data.users)
-            }).catch((error)=>{
-                navigate("/error")
-            })
-
-       }
+            })       
 
     },[search])
 

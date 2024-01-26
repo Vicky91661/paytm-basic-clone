@@ -5,10 +5,7 @@ import { useNavigate } from 'react-router-dom';
 function Header({firstName}) {
   const token =localStorage.getItem("authorization")
   const navigate = useNavigate()
-  console.log("token in header is ",token);
-
-
-
+  
   function deleteStorage(){
     localStorage.clear()
     navigate("/")
