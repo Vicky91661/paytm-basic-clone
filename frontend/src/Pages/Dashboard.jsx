@@ -6,7 +6,7 @@ import { Link, useNavigate,useSearchParams  } from 'react-router-dom'
 
 const UserCard =lazy(()=>import('../components/UserCard'));
 
-import Loading from '../components/loading';
+import Loading from '../components/Loading';
 
 import { useRecoilValue ,useSetRecoilState } from 'recoil';
 import UserAtom from '../store/UserAtom';
@@ -40,7 +40,7 @@ function Dashboard() {
     useEffect(()=>{
        if(!user.firstName){
 
-            axios.get("http://localhost:3000/api/v1/user/userDetails",{headers})
+            axios.get("https://paytm-basic-clone-backend.vercel.app/api/v1/user/userDetails",{headers})
             .then((Response)=>{
                 console.log(Response.data);
                 const data = Response.data;
@@ -53,7 +53,7 @@ function Dashboard() {
                 }))
                 setUserBalance(data.balance)
 
-                axios.get(`http://localhost:3000/api/v1/user/bulk`,{headers})
+                axios.get(`https://paytm-basic-clone-backend.vercel.app/api/v1/user/bulk`,{headers})
                 .then((data)=>{
                     setAllUsers(data.data.users)
                 }).catch((error)=>{
@@ -68,7 +68,7 @@ function Dashboard() {
 
        }else{
 
-            axios.get(`http://localhost:3000/api/v1/user/bulk?filter=${search}`,{headers})
+            axios.get(`https://paytm-basic-clone-backend.vercel.app/api/v1/user/bulk?filter=${search}`,{headers})
             .then((data)=>{
                 setAllUsers(data.data.users)
             }).catch((error)=>{

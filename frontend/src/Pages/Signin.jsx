@@ -16,7 +16,7 @@ function Signin() {
 
     function sendData(e){
         e.preventDefault();
-        axios.post("http://localhost:3000/api/v1/user/signin",loginData)
+        axios.post("https://paytm-basic-clone-backend.vercel.app/api/v1/user/signin",loginData)
         .then((data)=>{
             const authorization =data.data.token;
             localStorage.setItem('authorization', authorization);

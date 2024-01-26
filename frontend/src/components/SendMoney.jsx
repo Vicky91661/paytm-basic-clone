@@ -38,7 +38,7 @@ function SendMoney({firstName,lastName,headers,receiverId,SetMoneySend,setUserBa
         if(moneyData.amount>0){
             setMessage("Sending...")
 
-            axios.post("http://localhost:3000/api/v1/account/transferMoney",moneyData,{headers})
+            axios.post("https://paytm-basic-clone-backend.vercel.app/api/v1/account/transferMoney",moneyData,{headers})
             .then((response)=>{
                 console.log("After sending => ",response.data)
                 setMessage("Transaction Successfull")
