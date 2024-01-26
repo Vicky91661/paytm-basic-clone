@@ -42,7 +42,6 @@ function Dashboard() {
 
             axios.get("https://paytm-basic-clone-backend.vercel.app/api/v1/user/userDetails",{headers})
             .then((Response)=>{
-                console.log(Response.data);
                 const data = Response.data;
                 
                 setUserData(()=>({
@@ -57,12 +56,12 @@ function Dashboard() {
                 .then((data)=>{
                     setAllUsers(data.data.users)
                 }).catch((error)=>{
-                    console.log(error)
+                    
                     navigate("/error")
                 })
 
             }).catch((error)=>{
-                console.log(error)
+               
                 navigate("/error")
             })
 
@@ -72,7 +71,6 @@ function Dashboard() {
             .then((data)=>{
                 setAllUsers(data.data.users)
             }).catch((error)=>{
-                console.log(error)
                 navigate("/error")
             })
 
